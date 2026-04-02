@@ -78,7 +78,7 @@ DATASET:
   CODE_PATH: TOKENS
 
 METRIC:
-  TYPE: ['TM2TMetrics', 'PredMetrics']
+  TYPE: []
 
 LOSS:
   LAMBDA_FEATURE: 1.0

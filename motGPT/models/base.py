@@ -154,7 +154,7 @@ class BaseModel(LightningModule):
         return {'optimizer': optimizer, 'lr_scheduler': lr_scheduler}
 
     def configure_metrics(self):
-        self.metrics = BaseMetrics(datamodule=self.datamodule, **self.hparams)
+     self.metrics = None
 
     def save_npy(self, outputs):
         cfg = self.hparams.cfg
