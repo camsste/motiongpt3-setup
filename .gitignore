@@ -5,18 +5,23 @@ venv_*/
 
 # datasets
 datasets/
-*.npy
 *.zip
 
 # modelos e checkpoints
-deps/
 *.tar
 *.bin
 *.pt
 *.ckpt
 *.safetensors
-
 checkpoints/
+
+# deps (não ignorar tudo!)
+deps/**/*.pt
+deps/**/*.ckpt
+deps/**/*.bin
+deps/**/*.tar
+
+# resultados
 results/
 *.bak
 *.save
