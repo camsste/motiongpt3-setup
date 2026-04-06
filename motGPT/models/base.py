@@ -82,7 +82,7 @@ class BaseModel(LightningModule):
     def preprocess_state_dict(self, state_dict):
         new_state_dict = OrderedDict()
         
-        metric_state_dict = self.metrics.state_dict()
+        metric_state_dict = self.metrics.state_dict() if self.metrics is not None else {}
         loss_state_dict = self._losses.state_dict()
 
         for k, v in metric_state_dict.items():

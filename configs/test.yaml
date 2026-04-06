@@ -71,11 +71,15 @@ TEST:
   # max-R3ep=0 / min-FIDep=0-v1/ last-v1
   SPLIT: test
   BATCH_SIZE: 32 # training Batch size
-  REPLICATION_TIMES: 2 # Number of times to replicate the test
+  REPLICATION_TIMES: 2 # Number of times to replicate the 
 
 DATASET:
-  target: motGPT.data.HumanML3D.HumanML3DDataModule
-  CODE_PATH: TOKENS
+  HUMANML3D:
+    ROOT: /home/voxar-labs/Itaú/motiongpt3-demo/MotionGPT3/datasets/humanml3d/KIT-ML
+    SPLIT_ROOT: /home/voxar-labs/Itaú/motiongpt3-demo/MotionGPT3/datasets/humanml3d/KIT-ML
+
+target: motGPT.data.HumanML3D.HumanML3DDataModule
+CODE_PATH: TOKENS
 
 METRIC:
   TYPE: []
