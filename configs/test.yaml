@@ -73,6 +73,9 @@ TEST:
   BATCH_SIZE: 32 # training Batch size
   REPLICATION_TIMES: 2 # Number of times to replicate the 
 
+DEMO:
+  EXAMPLE: "./assets/texts/t2m.txt"
+
 DATASET:
   HUMANML3D:
     ROOT: /home/voxar-labs/Itaú/motiongpt3-demo/MotionGPT3/datasets/humanml3d/KIT-ML

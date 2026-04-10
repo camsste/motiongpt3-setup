@@ -219,10 +219,17 @@ def main():
                     
                 with open(os.path.join(output_dir, f'{idx}_out.txt'), 'w', encoding='utf-8') as f:
                     f.write(output_texts[i])
-                    
-                
-                pose_vis = plot_3d.draw_to_batch(xyz, [text_batch[i]], [os.path.join(output_dir, f'{idx}_out.gif')])
-                del pose_vis
+
+                # render fora do with
+                render_motion(
+                xyz,
+                xyz,
+                output_dir=output_dir,
+                fname=f'{idx}_out',
+                method='slow',
+                fps=20,
+                text=text_batch[i]
+                )
 
     total_time = time.time() - total_time
     logger.info(

@@ -4,7 +4,7 @@ import torch
 from torch import nn
 from einops import rearrange
 from transformers import (
-    GPT2LMHeadModel, 
+    GPT2LMHeadModel,
     GPT2Model,
     AutoTokenizer
 )
@@ -14,31 +14,48 @@ from transformers.utils import logging
 logger = logging.get_logger(__name__)
 
 import inspect
-from transformers.generation.utils import GenerateDecoderOnlyOutput, GenerateEncoderDecoderOutput
+
+# Compatibilidade com versões diferentes do transformers
+try:
+    from transformers.generation.utils import GenerateDecoderOnlyOutput, GenerateEncoderDecoderOutput
+except ImportError:
+    from transformers.generation.utils import GreedySearchDecoderOnlyOutput as GenerateDecoderOnlyOutput
+    from transformers.generation.utils import GreedySearchEncoderDecoderOutput as GenerateEncoderDecoderOutput
+
 from transformers.generation.logits_process import LogitsProcessorList
 from transformers.generation.stopping_criteria import StoppingCriteriaList
 
-from transformers.cache_utils import StaticCache, Cache
+try:
+    from transformers.cache_utils import StaticCache, Cache
+except ImportError:
+    class Cache:
+        pass
+
+    class StaticCache(Cache):
+        pass
+
 from transformers.generation.configuration_utils import GenerationConfig
-# from transformers.generation.streamers import BaseStreamer
 from transformers.modeling_outputs import CausalLMOutputWithCrossAttentions
-from transformers.utils import is_torchdynamo_compiling
+
+try:
+    from transformers.utils import is_torchdynamo_compiling
+except ImportError:
+    def is_torchdynamo_compiling():
+        return False
 
 from .my_modeling_mot_gpt2_sepattn import MoTGPT2Model
 from .modality_utils_sepattn import get_modalities_infos
 from .mot_module import get_embeds_from_ids
 
-
 import random
 import numpy as np
+
 def seed_setting(seed):
     os.environ["PL_GLOBAL_SEED"] = str(seed)
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
-
-
 class MoTGPT2LMHeadModel(GPT2LMHeadModel):
 
     def __init__(self, config, modality_num=2, motion_codebook_size=512+4, 

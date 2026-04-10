@@ -35,3 +35,25 @@ __pycache__/
 # logs e sistema
 *.log
 .DS_Store
+
+# vídeos (você está gerando agora)
+*.mp4
+*.gif
+
+# numpy outputs
+*.npy
+
+# possíveis modelos SMPL grandes
+*.pkl
+
+# configs locais (caso apareçam)
+*.json
+
+# vscode
+.vscode/
+
+# lixo temporário
+tmp/
+
+deps/
+libs/

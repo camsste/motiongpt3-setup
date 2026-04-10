@@ -1,11 +1,66 @@
-
 import torch
 from torch import nn
 from typing import Optional, Tuple, List, Union, Callable
 
 
 from transformers.models.gpt2.modeling_gpt2 import Conv1D, GPT2MLP#, eager_attention_forward
-from transformers.modeling_attn_mask_utils import _prepare_4d_attention_mask_for_sdpa, _prepare_4d_causal_attention_mask_for_sdpa
+
+try:
+    from transformers.modeling_attn_mask_utils import (
+        _prepare_4d_attention_mask_for_sdpa,
+        _prepare_4d_causal_attention_mask_for_sdpa,
+    )
+except ImportError:
+    def _prepare_4d_attention_mask_for_sdpa(attention_mask=None, dtype=None, tgt_len=None, mask=None):
+        mask = attention_mask if attention_mask is not None else mask
+        if mask is None:
+            return None
+
+        if dtype is None:
+            dtype = torch.float32
+
+        bsz, src_len = mask.shape
+        tgt_len = tgt_len if tgt_len is not None else src_len
+
+        expanded_mask = mask[:, None, None, :].to(dtype=dtype)
+        expanded_mask = (1.0 - expanded_mask) * torch.finfo(dtype).min
+        expanded_mask = expanded_mask.expand(bsz, 1, tgt_len, src_len)
+        return expanded_mask
+
+    def _prepare_4d_causal_attention_mask_for_sdpa(
+        attention_mask=None,
+        input_shape=None,
+        inputs_embeds=None,
+        past_key_values_length=0,
+        sliding_window=None,
+    ):
+        bsz, tgt_len = input_shape
+        device = inputs_embeds.device if inputs_embeds is not None else attention_mask.device
+        dtype = inputs_embeds.dtype if inputs_embeds is not None else torch.float32
+        src_len = tgt_len + past_key_values_length
+
+        causal_mask = torch.full(
+            (tgt_len, src_len),
+            torch.finfo(dtype).min,
+            device=device,
+            dtype=dtype,
+        )
+        causal_mask = torch.triu(causal_mask, diagonal=1 + past_key_values_length)
+        causal_mask = causal_mask.unsqueeze(0).unsqueeze(0).expand(bsz, 1, tgt_len, src_len)
+
+        if attention_mask is not None:
+            expanded_mask = attention_mask[:, None, None, :].to(dtype=dtype)
+
+            if expanded_mask.shape[-1] < src_len:
+                pad_len = src_len - expanded_mask.shape[-1]
+                pad = torch.ones((bsz, 1, 1, pad_len), device=device, dtype=dtype)
+                expanded_mask = torch.cat([pad, expanded_mask], dim=-1)
+
+            expanded_mask = (1.0 - expanded_mask) * torch.finfo(dtype).min
+            causal_mask = causal_mask + expanded_mask
+
+        return causal_mask
+    
 from transformers.modeling_outputs import (
     BaseModelOutputWithPastAndCrossAttentions,
     # CausalLMOutputWithCrossAttentions,
